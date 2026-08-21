@@ -1,53 +1,250 @@
+/* Stargazer. Dark by intent -- this one isn't theme-aware, it's a night sky. */
+
 :root {
-  color-scheme: light dark;
-  --bg: #ffffff;
-  --fg: #1a1a1a;
-  --accent: #3b82f6;
+  --ink: #e8eefc;
+  --dim: #93a3c4;
+  --panel: rgba(12, 17, 32, 0.72);
+  --edge: rgba(126, 158, 216, 0.22);
+  --accent: #7aa8ec;
+  --radius: 10px;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-body {
+html, body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: var(--bg);
-  color: var(--fg);
+  height: 100%;
+  overflow: hidden;
+  background: #05070f;
+  color: var(--ink);
+  font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- canvases ---- */
+
+#stage { position: fixed; inset: 0; }
+
+#stage canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  /* Without this, mobile browsers claim every gesture before we see it. */
+  touch-action: none;
+}
+
+#sky { cursor: grab; outline: none; }
+#sky:active { cursor: grabbing; }
+#sky:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+#hud { pointer-events: none; }
+
+/* ---- chrome ---- */
+
+#brand {
+  position: fixed;
+  top: max(18px, env(safe-area-inset-top));
+  left: max(20px, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
+#brand h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+#brand p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+#panel {
+  position: fixed;
+  top: max(18px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  width: 236px;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  gap: 10px;
 }
 
-header, footer {
-  padding: 1.5rem 2rem;
-  text-align: center;
+#search { position: relative; }
+
+#search-input,
+#toggles {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  color: var(--ink);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-main {
-  flex: 1;
+#search-input {
+  padding: 9px 12px;
+  font: inherit;
+}
+
+#search-input::placeholder { color: var(--dim); }
+#search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+#search-input::-webkit-search-cancel-button { filter: invert(0.7); }
+
+#suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+#suggestions[hidden] { display: none; }
+
+#suggestions li {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-button {
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
-  background: var(--accent);
-  color: white;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 9px;
+  border-radius: 7px;
   cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.9;
+#suggestions li[aria-selected="true"],
+#suggestions li:hover { background: rgba(122, 168, 236, 0.18); }
+
+#suggestions .kind {
+  font-size: 11px;
+  color: var(--dim);
+  white-space: nowrap;
 }
 
-footer {
-  font-size: 0.85rem;
-  opacity: 0.7;
+#toggles {
+  margin: 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13px;
+}
+
+#toggles label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--dim);
+}
+
+#toggles input { accent-color: var(--accent); margin: 0; }
+
+/* ---- tooltip ---- */
+
+#tooltip {
+  position: fixed;
+  z-index: 5;
+  padding: 8px 11px;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: 9px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translate(14px, -50%);
+}
+
+#tooltip[hidden] { display: none; }
+#tooltip strong { display: block; font-weight: 600; }
+#tooltip span { font-size: 12px; color: var(--dim); }
+
+/* ---- footer ---- */
+
+#credits {
+  position: fixed;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  left: max(20px, env(safe-area-inset-left));
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+#credits a { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--edge); }
+#credits a:hover { color: var(--ink); }
+#readout { font-variant-numeric: tabular-nums; }
+
+/* ---- loading ---- */
+
+#loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  background: #05070f;
+  color: var(--dim);
+  transition: opacity 0.5s ease;
+}
+
+#loading.done { opacity: 0; pointer-events: none; }
+#loading p { margin: 0; font-size: 13px; letter-spacing: 0.04em; }
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--edge);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 3s; }
+  #loading { transition: none; }
+}
+
+/* ---- small screens ---- */
+
+@media (max-width: 640px) {
+  #panel {
+    left: max(14px, env(safe-area-inset-left));
+    right: max(14px, env(safe-area-inset-right));
+    width: auto;
+    top: auto;
+    bottom: max(46px, calc(env(safe-area-inset-bottom) + 38px));
+  }
+  #toggles { flex-direction: row; flex-wrap: wrap; gap: 6px 14px; }
+  #suggestions { top: auto; bottom: calc(100% + 6px); }
+  #brand p { display: none; }
+  #credits { font-size: 11px; gap: 12px; }
 }

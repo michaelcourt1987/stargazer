@@ -1,26 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Example Website</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stargazer — explore the night sky</title>
+<meta name="description" content="An interactive map of the night sky. Pan across the celestial sphere, zoom in on constellations, and find any star by name.">
+<meta name="color-scheme" content="dark">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>✨</text></svg>">
 </head>
 <body>
-  <header>
-    <h1>Example Website</h1>
-    <p>A starting point.</p>
-  </header>
 
-  <main>
-    <p id="greeting">Hello, world!</p>
-    <button id="greet-btn">Say hi</button>
-  </main>
+<div id="stage">
+  <canvas id="sky" tabindex="0" role="application"
+          aria-label="Star map. Drag to pan across the sky, scroll to zoom. Arrow keys pan, plus and minus zoom."></canvas>
+  <canvas id="hud" aria-hidden="true"></canvas>
+</div>
 
-  <footer>
-    <p>&copy; 2026 Example Website</p>
-  </footer>
+<header id="brand">
+  <h1>Stargazer</h1>
+  <p>Drag to look around · scroll to zoom</p>
+</header>
 
-  <script src="script.js"></script>
+<div id="panel">
+  <form id="search" role="search" autocomplete="off">
+    <input id="search-input" type="search" placeholder="Find a star or constellation"
+           aria-label="Find a star or constellation" spellcheck="false">
+    <ul id="suggestions" role="listbox" aria-label="Search results" hidden></ul>
+  </form>
+
+  <fieldset id="toggles">
+    <legend class="sr-only">Display options</legend>
+    <label><input type="checkbox" id="toggle-lines" checked> Constellation lines</label>
+    <label><input type="checkbox" id="toggle-names" checked> Constellation names</label>
+    <label><input type="checkbox" id="toggle-stars" checked> Star names</label>
+  </fieldset>
+</div>
+
+<div id="tooltip" role="status" aria-live="polite" hidden></div>
+
+<div id="loading">
+  <span class="spinner" aria-hidden="true"></span>
+  <p>Charting the sky…</p>
+</div>
+
+<footer id="credits">
+  <span id="readout" aria-hidden="true"></span>
+  <a href="https://github.com/michaelcourt1987/stargazer">Source</a>
+  <a href="ATTRIBUTION.md">Star data</a>
+</footer>
+
+<script type="module" src="src/main.js"></script>
 </body>
 </html>
